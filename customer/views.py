@@ -84,10 +84,11 @@ def seller_login(request):
         s_username = request.POST['seller_id']
         s_password = request.POST['password']
 
-        seller = Seller.objects.filter(loginid = s_username, password = s_password)
+        sellernew = Seller.objects.filter(loginid = s_username, password = s_password)
 
-        if seller.exists():
-                request.session['seller'] = seller[0].id
+        if sellernew.exists():
+                request.session['seller'] = sellernew[0].id
+                request.session['seller_name'] = sellernew[0].first_name + ' ' + sellernew[0].last_name
                 return redirect('Seller:seller_home')
         else: 
                 msg = 'Incorrect password/Id'
