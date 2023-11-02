@@ -14,7 +14,7 @@ urlpatterns = [
     path('stock/update',views.update_stock,name="update_stock"),
     path('order/history',views.order_history,name="order_history"),
     path('password/change',views.change_password, name = "change_password"),
-    # path('logout',views.seller_logout, name = "seller_logout"),
+    path('logout',views.seller_logout, name = "seller_logout"),
 
    
 ]
