@@ -57,7 +57,7 @@ def change_password(request):
         
     return render(request,'seller/change_password.html',{'pwd_status': pwd_status})
 
-# def seller_logout(request):
-#     del request.session['seller']
-#     request.session.flush()
-#     return redirect('Seller:seller_home')
+def seller_logout(request):
+    del request.session['seller']
+    request.session.flush()
+    return redirect('customer:seller_login')
