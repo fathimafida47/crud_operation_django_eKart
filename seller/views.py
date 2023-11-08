@@ -49,7 +49,8 @@ def view_category(request):
     return render(request, 'seller/view_category.html')
 
 def view_products(request):
-    return render(request, 'seller/view_product.html')
+    products = Product.objects.filter(seller_id = request.session['seller'])
+    return render(request, 'seller/view_product.html',{'products':products})
 
 def profile(request):
     return render(request,'seller/profile.html')

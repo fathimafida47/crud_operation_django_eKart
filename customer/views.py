@@ -1,23 +1,32 @@
+
 from django.shortcuts import redirect, render
 from random import randint
 from django.conf import settings
 from django.core.mail import send_mail
 
 from customer.models import Customer, Seller
+from seller.models import Product
 # Create your views here.
 
 
 def customer_home(request):
     customer = Customer.objects.get(id = request.session['customer'])
-    return render(request, 'customer/customer_home.html',{'customer_details':customer})
+    products = Product.objects.all()
+    context = {
+        'products':products,
+        'customer_details':customer
+    }
+    return render(request, 'customer/customer_home.html',context)
 
 
 def store(request):
-    return render(request, 'customer/store.html')
+    product = Product.objects.all()
+    return render(request, 'customer/store.html',{'product':product})
 
 
-def product_detail(request):
-    return render(request, 'customer/product_detail.html')
+def product_detail(request,id):
+    product = Product.objects.get(id = id)
+    return render(request, 'customer/product_detail.html',{'product':product})
 
 
 def cart(request):
