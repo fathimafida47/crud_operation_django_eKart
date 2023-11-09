@@ -1,12 +1,13 @@
 from django.db import models
 
 from customer.models import Seller
+from eKart_admin.models import Category
 
 # Create your models here.
 class Product(models.Model):
     product_no = models.CharField(max_length = 50)
     product_name = models.CharField(max_length = 50)
-    product_category = models.CharField(max_length = 50)
+    product_category = models.ForeignKey(Category,on_delete = models.CASCADE)
     description = models.CharField(max_length = 100)
     stock = models.IntegerField()
     price = models.FloatField()
