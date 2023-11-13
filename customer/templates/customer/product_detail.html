@@ -70,10 +70,20 @@
                                 </div>
                             </div>
                         </div> row.// -->
-                        <hr>
-                        <a href="./product-detail.html" class="btn  btn-primary"> <span class="text">Add to cart</span>
-                            <i class="fas fa-shopping-cart"></i> </a>
+                        <hr>{% if item_exist %}
+                        <a href="" class="btn btn-primary">
+                                Go to cart
+                        </a>
+                        {% else %}
+                        <form method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn  btn-primary"> <span class="text">Add to cart</span>
+                                <i class="fas fa-shopping-cart"></i> </button>
+                                
+                        </form>
+                        {% endif %}
                     </article> <!-- product-info-aside .// -->
+                    
                 </main> <!-- col.// -->
             </div> <!-- row.// -->
         </div> <!-- card.// -->
