@@ -59,7 +59,7 @@
                                             </div>
                                         </div> <!-- input-group.// -->
                                     </div> <!-- col.// -->
-                                </td>
+                                </td> 
                                 <td>
                                     <div class="price-wrap">
                                         <var class="price">Rs.{{ item.product.price }}</var>
@@ -83,7 +83,7 @@
                     <div class="card-body">
                         <dl class="dlist-align">
                             <dt>Total price:</dt>
-                            <dd class="text-right">Rs.{{ grand_total }}</dd>
+                            <dd class="text-right" id="total_price" >Rs.{{ grand_total }}</dd>
                         </dl>
                         <dl class="dlist-align">
                             <dt>Tax:</dt>
@@ -91,7 +91,7 @@
                         </dl>
                         <dl class="dlist-align">
                             <dt>Total:</dt>
-                            <dd class="text-right text-dark b"><strong>Rs.{{ grand_total }}</strong></dd>
+                            <dd class="text-right text-dark b"><strong id="grand_total" >Rs.{{ grand_total }}</strong></dd>
                         </dl>
                         <hr>
                         <p class="text-center mb-3">
@@ -131,14 +131,35 @@
 
         if(btntype == 'decrement'){
             btnstatus = 'decrement'
-            if(currenttxtvalue > 0){
+            if(currenttxtvalue > 1){
                 var decrementedvalue = currenttxtvalue - 1
                 selectedtxt.value = decrementedvalue
             }
         }
+        $.ajaxSetup({
+            headers: {
+                "X-CSRFToken": '{{ csrf_token }}'
+            }
+        })
+        $.ajax({
+            url: "{% url 'customer:update_cart' %}",
+            method: 'POST',
+            data: {
+                id: selectedproductid,
+                qty: selectedtxt.value
+
+            },
+            success: function (response) {
+                 
+                let grandTotal = response.grand_total
+                console.log(grandTotal)
+                $('#grand_total').html('<strong>Rs. ' + grandTotal + '.0</strong>')
+                $('#total_price').html('<strong>Rs. ' + grandTotal + '.0</strong>')
+
+            }
+        })
         
     })
-
 </script>
    
 
