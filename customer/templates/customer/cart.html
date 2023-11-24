@@ -20,13 +20,16 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for item in cart %}
                             <tr>
+                              
+
                                 <td>
                                     <figure class="itemside align-items-center">
-                                        <div class="aside"><img src="{% static './images/items/11.jpg' %}" class="img-sm"></div>
+                                        <div class="aside"><img src="{{item.product.image.url}}" class="img-sm"></div>
                                         <figcaption class="info">
-                                            <a href="#" class="title text-dark">Camera Canon EOS M50 Kit</a>
-                                            <p class="text-muted small">Matrix: 25 Mpx <br> Brand: Canon</p>
+                                            <a href="#" class="title text-dark">{{ item.product.product_name }}</a>
+                                            <p class="text-muted small">{{ item.product.description }}</p>
                                         </figcaption>
                                     </figure>
                                 </td>
@@ -35,27 +38,39 @@
                                     <div class="col">
                                         <div class="input-group input-spinner">
                                             <div class="input-group-prepend">
-                                                <button class="btn btn-light" type="button" id="button-plus"> <i
+                                                <button class="btn btn-light update_cart" 
+                                                data-qty="product_qty{{ item.product.id }}"
+                                                data-stock="{{item.product.stock}}"
+                                                data-product-id="{{item.product.id}}" 
+                                                data-btn-type="decrement"
+                                                type="button"> <i
                                                         class="fa fa-minus"></i> </button>
                                             </div>
-                                            <input type="text" class="form-control" value="1">
+                                            <input type="text" class="form-control " id ="product_qty{{item.product.id}}" value="{{item.quantity}}">
+
                                             <div class="input-group-append">
-                                                <button class="btn btn-light" type="button" id="button-minus"> <i
+                                                <button class="btn btn-light update_cart"
+                                                data-qty="product_qty{{ item.product.id }}"
+                                                data-stock="{{item.product.stock}}"
+                                                data-product-id="{{item.product.id}}" 
+                                                data-btn-type="increment"
+                                                type="button" > <i
                                                         class="fa fa-plus"></i> </button>
                                             </div>
                                         </div> <!-- input-group.// -->
                                     </div> <!-- col.// -->
-                                </td>
+                                </td> 
                                 <td>
                                     <div class="price-wrap">
-                                        <var class="price">$1156.00</var>
-                                        <small class="text-muted"> $315.20 each </small>
+                                        <var class="price">Rs.{{ item.product.price }}</var>
+                                        <!-- <small class="text-muted"> $315.20 each </small> -->
                                     </div> <!-- price-wrap .// -->
                                 </td>
                                 <td class="text-right">
-                                    <a href="" class="btn btn-danger"> Remove</a>
+                                    <a href="{% url 'customer:remove_cart' item.id %}" class="btn btn-danger"> Remove</a>
                                 </td>
                             </tr>
+                             {% endfor %}
                             
                         </tbody>
                     </table>
@@ -68,15 +83,15 @@
                     <div class="card-body">
                         <dl class="dlist-align">
                             <dt>Total price:</dt>
-                            <dd class="text-right">$69.97</dd>
+                            <dd class="text-right" id="total_price" >Rs.{{ grand_total }}</dd>
                         </dl>
                         <dl class="dlist-align">
                             <dt>Tax:</dt>
-                            <dd class="text-right"> $10.00</dd>
+                            <dd class="text-right">0</dd>
                         </dl>
                         <dl class="dlist-align">
                             <dt>Total:</dt>
-                            <dd class="text-right text-dark b"><strong>$59.97</strong></dd>
+                            <dd class="text-right text-dark b"><strong id="grand_total" >Rs.{{ grand_total }}</strong></dd>
                         </dl>
                         <hr>
                         <p class="text-center mb-3">
@@ -95,6 +110,57 @@
 
     </div> <!-- container .//  -->
 </section>
-<!-- ==============
+<script>
+    var btnstatus = ''
+    $('.update_cart').click(function(){
+        // console.log('hello')
+        let btntype = $(this).attr('data-btn-type')
+        let selecteditemid = $(this).attr('data-qty')
+        let selectedtxt = document.getElementById(selecteditemid)
+        let currenttxtvalue = parseInt(selectedtxt.value)
+        let currentitemstock = $(this).attr('data-stock')
+        let selectedproductid = $(this).attr('data-product-id')
+
+        if(btntype == 'increment'){
+            btnstatus = 'increment'
+            if(currenttxtvalue < currentitemstock){
+                var incrementedvalue = currenttxtvalue + 1
+                selectedtxt.value = incrementedvalue
+            }
+        }
+
+        if(btntype == 'decrement'){
+            btnstatus = 'decrement'
+            if(currenttxtvalue > 1){
+                var decrementedvalue = currenttxtvalue - 1
+                selectedtxt.value = decrementedvalue
+            }
+        }
+        $.ajaxSetup({
+            headers: {
+                "X-CSRFToken": '{{ csrf_token }}'
+            }
+        })
+        $.ajax({
+            url: "{% url 'customer:update_cart' %}",
+            method: 'POST',
+            data: {
+                id: selectedproductid,
+                qty: selectedtxt.value
+
+            },
+            success: function (response) {
+                 
+                let grandTotal = response.grand_total
+                console.log(grandTotal)
+                $('#grand_total').html('<strong>Rs. ' + grandTotal + '.0</strong>')
+                $('#total_price').html('<strong>Rs. ' + grandTotal + '.0</strong>')
+
+            }
+        })
+        
+    })
+</script>
+   
 
 {% endblock %}
