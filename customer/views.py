@@ -1,12 +1,14 @@
 
+import datetime
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from random import randint
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import F
+import razorpay
 
-from customer.models import Cart, Customer
+from customer.models import Cart, Customer, Order, OrderItem
 from seller.models import Product , Seller
 # Create your views here.
 
@@ -95,6 +97,31 @@ def update_cart(request):
 
 def place_order(request):
     return render(request, 'customer/place_order.html')
+
+def order_product(request):
+    cart = Cart.objects.filter(customer = request.session['customer']).annotate(sub_total = F('quantity')*F('price'))
+    grand_total = 0
+    for item in cart:
+        grand_total += item.sub_total
+
+    order_amount = grand_total
+    order_currency = 'INR'
+    order_receipt = 'order_receipt_01'
+    notes = {'shipping address':'koyas , calicut'}
+    order_number = 'OD-EKART' + str(randint(1111111111,9999999999))
+    client = razorpay.Client(auth = (settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
+    payment = client.order.create({
+        'amount':order_amount*100,
+        'currency':order_currency,
+        'receipt':order_receipt,
+        'notes':notes
+    })
+    order = Order(customer_id = request.session['customer'],order_id = payment['id'], order_amount = grand_total, order_number = order_number)
+    
+    order.save()
+    return JsonResponse(payment)
+
+
 
 
 def order_complete(request):

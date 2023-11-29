@@ -38,6 +38,7 @@ class Order(models.Model):
     payment_status = models.BooleanField(default = False)
     payment_id =  models.CharField(max_length = 25,unique = True,null = True)
     signature_id = models.CharField(max_length = 25,unique = True,null = True)
+    order_number = models.CharField(max_length = 25, unique = True)
 
     class Meta:
         db_table = 'order_tb'

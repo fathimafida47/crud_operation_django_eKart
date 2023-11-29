@@ -22,7 +22,7 @@
                         <tbody>
                             {% for item in cart %}
                             <tr>
-                              
+
 
                                 <td>
                                     <figure class="itemside align-items-center">
@@ -38,28 +38,25 @@
                                     <div class="col">
                                         <div class="input-group input-spinner">
                                             <div class="input-group-prepend">
-                                                <button class="btn btn-light update_cart" 
-                                                data-qty="product_qty{{ item.product.id }}"
-                                                data-stock="{{item.product.stock}}"
-                                                data-product-id="{{item.product.id}}" 
-                                                data-btn-type="decrement"
-                                                type="button"> <i
-                                                        class="fa fa-minus"></i> </button>
+                                                <button class="btn btn-light update_cart"
+                                                    data-qty="product_qty{{ item.product.id }}"
+                                                    data-stock="{{item.product.stock}}"
+                                                    data-product-id="{{item.product.id}}" data-btn-type="decrement"
+                                                    type="button"> <i class="fa fa-minus"></i> </button>
                                             </div>
-                                            <input type="text" class="form-control " id ="product_qty{{item.product.id}}" value="{{item.quantity}}">
+                                            <input type="text" class="form-control " id="product_qty{{item.product.id}}"
+                                                value="{{item.quantity}}">
 
                                             <div class="input-group-append">
                                                 <button class="btn btn-light update_cart"
-                                                data-qty="product_qty{{ item.product.id }}"
-                                                data-stock="{{item.product.stock}}"
-                                                data-product-id="{{item.product.id}}" 
-                                                data-btn-type="increment"
-                                                type="button" > <i
-                                                        class="fa fa-plus"></i> </button>
+                                                    data-qty="product_qty{{ item.product.id }}"
+                                                    data-stock="{{item.product.stock}}"
+                                                    data-product-id="{{item.product.id}}" data-btn-type="increment"
+                                                    type="button"> <i class="fa fa-plus"></i> </button>
                                             </div>
                                         </div> <!-- input-group.// -->
                                     </div> <!-- col.// -->
-                                </td> 
+                                </td>
                                 <td>
                                     <div class="price-wrap">
                                         <var class="price">Rs.{{ item.product.price }}</var>
@@ -67,11 +64,12 @@
                                     </div> <!-- price-wrap .// -->
                                 </td>
                                 <td class="text-right">
-                                    <a href="{% url 'customer:remove_cart' item.id %}" class="btn btn-danger"> Remove</a>
+                                    <a href="{% url 'customer:remove_cart' item.id %}" class="btn btn-danger">
+                                        Remove</a>
                                 </td>
                             </tr>
-                             {% endfor %}
-                            
+                            {% endfor %}
+
                         </tbody>
                     </table>
                 </div> <!-- card.// -->
@@ -83,7 +81,7 @@
                     <div class="card-body">
                         <dl class="dlist-align">
                             <dt>Total price:</dt>
-                            <dd class="text-right" id="total_price" >Rs.{{ grand_total }}</dd>
+                            <dd class="text-right" id="total_price">Rs.{{ grand_total }}</dd>
                         </dl>
                         <dl class="dlist-align">
                             <dt>Tax:</dt>
@@ -91,13 +89,14 @@
                         </dl>
                         <dl class="dlist-align">
                             <dt>Total:</dt>
-                            <dd class="text-right text-dark b"><strong id="grand_total" >Rs.{{ grand_total }}</strong></dd>
+                            <dd class="text-right text-dark b"><strong id="grand_total">Rs.{{ grand_total }}</strong>
+                            </dd>
                         </dl>
                         <hr>
                         <p class="text-center mb-3">
                             <img src="{% static './images/misc/payments.png' %}" height="26">
                         </p>
-                        <a href="{% url 'customer:order_complete' %}" class="btn btn-primary btn-block"> Checkout </a>
+                        <button type="button" class="btn btn-primary btn-block" id="razorpay1"> Checkout </button>
                         <a href="{% url 'customer:store' %}" class="btn btn-light btn-block">Continue Shopping</a>
                     </div> <!-- card-body.// -->
                 </div> <!-- card.// -->
@@ -110,9 +109,11 @@
 
     </div> <!-- container .//  -->
 </section>
-<script>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script >
     var btnstatus = ''
-    $('.update_cart').click(function(){
+    $('.update_cart').click(function () {
         // console.log('hello')
         let btntype = $(this).attr('data-btn-type')
         let selecteditemid = $(this).attr('data-qty')
@@ -121,17 +122,17 @@
         let currentitemstock = $(this).attr('data-stock')
         let selectedproductid = $(this).attr('data-product-id')
 
-        if(btntype == 'increment'){
+        if (btntype == 'increment') {
             btnstatus = 'increment'
-            if(currenttxtvalue < currentitemstock){
+            if (currenttxtvalue < currentitemstock) {
                 var incrementedvalue = currenttxtvalue + 1
                 selectedtxt.value = incrementedvalue
             }
         }
 
-        if(btntype == 'decrement'){
+        if (btntype == 'decrement') {
             btnstatus = 'decrement'
-            if(currenttxtvalue > 1){
+            if (currenttxtvalue > 1) {
                 var decrementedvalue = currenttxtvalue - 1
                 selectedtxt.value = decrementedvalue
             }
@@ -150,7 +151,7 @@
 
             },
             success: function (response) {
-                 
+
                 let grandTotal = response.grand_total
                 console.log(grandTotal)
                 $('#grand_total').html('<strong>Rs. ' + grandTotal + '.0</strong>')
@@ -158,9 +159,44 @@
 
             }
         })
-        
+
+    })
+
+    $('#razorpay1').click(function(){
+        $.ajaxSetup({
+            headers: {
+                "X-CSRFToken": '{{ csrf_token }}'
+            }
+        });
+        $.ajax({
+            url : "{% url 'customer:order_product' %}",
+            method : 'POST',
+            success:function(response){
+                console.log(response)
+                var options = {
+                    'key':'rzp_test_sgyDYbBVhO6Riw',
+                    'amount':response.amount,
+                    'currency':'INR',
+                    'name':'EKART',
+                    'order_id':response.id,
+                    'handler':function(response){
+                        console.log(response) 
+                    },
+                    'theme':{
+                        'color':'blue'
+                    },
+                    'prefili':{
+                        'name':'fathima',
+                        'email':'fathimafida8281@gmail.com',
+                        'contact':'7012329672',
+                    }
+                }
+                var razorpay_1 = new Razorpay(options)
+                razorpay_1.open()
+            }
+        }) 
     })
 </script>
-   
+
 
 {% endblock %}
